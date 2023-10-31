@@ -10,10 +10,10 @@ compiled_package_info:
     data_structures_address: 6688bdce931ec5a9fabb3d92f6a32cbfa80fda5f24e261ffda72a60123ea2dd6
     std: "0000000000000000000000000000000000000000000000000000000000000001"
     vm_reserved: "0000000000000000000000000000000000000000000000000000000000000000"
-  source_digest: 20B33677DFCDBA07CC17B8413D043942221104D61CD24A4DCD02644AA10475EC
+  source_digest: 4640E2BD8727BD1A424D027F714B3BE1983A12BB3205B95260AC9071FF13C6CF
   build_flags:
-    dev_mode: true
-    test_mode: true
+    dev_mode: false
+    test_mode: false
     generate_docs: false
     generate_abis: false
     generate_move_model: true
