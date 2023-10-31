@@ -6,11 +6,11 @@ module data_structures_address::todolist {
   use aptos_framework::event;
   use std::string::String;
   use std::signer;
-  use aptos_std::table::{Self, Table}; 
+  use aptos_std::smart_table::{Self, SmartTable}; 
   use aptos_framework::account;
   
   struct TodoList has key {
-    tasks: Table<u64, Task>,
+    tasks: SmartTable<u64, Task>,
     set_task_event: event::EventHandle<Task>,
     task_counter: u64
   }
@@ -29,7 +29,7 @@ module data_structures_address::todolist {
 
   public entry fun create_list(account: &signer){
     let task_holder= TodoList{
-        tasks: table::new(),
+        tasks: smart_table::new(),
         set_task_event: account::new_event_handle<Task>(account),
         task_counter: 0
     };
@@ -47,7 +47,7 @@ module data_structures_address::todolist {
       content,
       completed: false
     };
-    table::upsert(&mut todolist.tasks,counter,new_task);
+    smart_table::upsert(&mut todolist.tasks,counter,new_task);
     todolist.task_counter= counter;
     event::emit_event(&mut todolist.set_task_event,
       new_task);
@@ -57,8 +57,8 @@ module data_structures_address::todolist {
     let signer_address= signer::address_of(account);
     assert!(exists<TodoList>(signer_address), E_NOT_INITIALIZED);
     let todolist= borrow_global_mut<TodoList>(signer_address);
-    assert!(table::contains(&todolist.tasks,task_id),ETASK_DOESNT_EXIST);
-    let task_record= table::borrow_mut(&mut todolist.tasks,task_id);
+    assert!(smart_table::contains(&todolist.tasks,task_id),ETASK_DOESNT_EXIST);
+    let task_record= smart_table::borrow_mut(&mut todolist.tasks,task_id);
     assert!(task_record.completed==false,ETASK_IS_COMPLETED);
     task_record.completed= true;
   }
@@ -76,7 +76,7 @@ module data_structures_address::todolist {
   #[test_only]
   public(friend) entry fun getTaskRecord(admin: &signer):(u64,bool,String,address) acquires TodoList{
     let todoList= borrow_global<TodoList>(signer::address_of(admin));
-    let task_record=table::borrow(&todoList.tasks,todoList.task_counter);
+    let task_record=smart_table::borrow(&todoList.tasks,todoList.task_counter);
     (task_record.task_id,task_record.completed,task_record.content,task_record.address)
   }
 
