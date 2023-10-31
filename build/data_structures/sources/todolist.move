@@ -7,12 +7,14 @@ module data_structures_address::todolist {
   use std::string::String;
   use std::signer;
   use aptos_std::smart_table::{Self, SmartTable}; 
+  use aptos_std::smart_vector::{Self, SmartVector};
   use aptos_framework::account;
   
   struct TodoList has key {
     tasks: SmartTable<u64, Task>,
     set_task_event: event::EventHandle<Task>,
-    task_counter: u64
+    task_counter: u64,
+    completed_task_ids: SmartVector<u64>
   }
   
   struct Task has store, drop, copy {
@@ -31,7 +33,8 @@ module data_structures_address::todolist {
     let task_holder= TodoList{
         tasks: smart_table::new(),
         set_task_event: account::new_event_handle<Task>(account),
-        task_counter: 0
+        task_counter: 0,
+        completed_task_ids: smart_vector::new()
     };
     move_to(account,task_holder)
   }
@@ -61,6 +64,13 @@ module data_structures_address::todolist {
     let task_record= smart_table::borrow_mut(&mut todolist.tasks,task_id);
     assert!(task_record.completed==false,ETASK_IS_COMPLETED);
     task_record.completed= true;
+    smart_vector::push_back(&mut todolist.completed_task_ids,task_id);
+  }
+
+  #[view]
+  public fun check_is_completed_event(sender:&signer,task_id:u64):bool acquires TodoList{
+    let todolist= borrow_global<TodoList>(signer::address_of(sender));
+    smart_vector::contains<u64>(&todolist.completed_task_ids,&task_id)
   }
 
   #[test_only]
